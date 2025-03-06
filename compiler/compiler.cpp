@@ -46,4 +46,15 @@
 INTEGER compiler () {
     INTEGER i = 0;
     return i;
-#include "compiler.hpp" // Compiler replaces this with the closing bracket from compiler.hpp
+#include "compiler.hpp"         // Compiler replaces this with the closing bracket from compiler.hpp
+
+/*
+ * Using const variables can help the compiler optimize more effectively.
+ * Debugging optimized compiled code can be challenging because variables might be removed, and functions might be skipped, making the debugger behave unexpectedly.
+ */
+void compiler_optimization() {
+    int x = 3 + 4;              // Constant folding     - compiler replaces x with 7
+    std::cout << x << '\n';     // Constant propogation - compiler replaces x with 7
+    
+    int y = 7;                  // Dead code            - removed by compiler
+}

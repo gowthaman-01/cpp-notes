@@ -48,6 +48,11 @@
  *    - CPUs are often optimized for 32-bit processing. A 32-bit int may be faster than 16-bit or 8-bit types.
  *    - Use sizeof(datatype) to determine the exact size on your machine.
  *    - Define variables as close to their first use as reasonable.
+ *    - Make variables constant whenever possible (refer below for exceptions).
+ *    - Prefer constant variables over object-like macros with substitution text.
+ *    - To avoid redefining constants like pi or gravity in multiple places, declare them once in a central location and use them across your code. This makes it easier to update values if needed.
+ *    - Floating-point literals like 1.2 are treated as double by default for higher precision.
+ *    - Use static_cast<new_type> when you want to perform arithmetic with integrals with different types
  *
  * TODO (Initialization Techniques to Explore):
  *  1. Aggregate initialization
@@ -60,6 +65,7 @@
 #include <cstddef>
 #include <iomanip>
 #include <iostream>
+#include <string>
 
 typedef long lo;
 
@@ -71,65 +77,65 @@ int GLOBAL_INT = 5;
 void dataTypes() {
     std::cout << GLOBAL_PI;
     // Integer types
-    int i                   = GLOBAL_INT;               // 4 bytes, range: -2,147,483,648 to 2,147,483,647
-    unsigned int ui         = 4294967295U;              // 4 bytes, range: 0 to 4,294,967,295
+    int i                   = GLOBAL_INT;                   // 4 bytes, range: -2,147,483,648 to 2,147,483,647
+    unsigned int ui         = 4294967295U;                  // 4 bytes, range: 0 to 4,294,967,295
 
-    // Character types
-    char c                  = 'A';                      // 1 byte, range: -128 to 127. Avoid multicharacter literals (e.g. '56')
-    unsigned char uc        = 255;                      // 1 byte, range: 0 to 255
-    wchar_t wc              = L'A';                     // 2 or 4 bytes, wide character literal
-    char16_t u16            = u'A';                     // 2 bytes, UTF-16 character literal
-    char32_t u32            = U'A';                     // 4 bytes, UTF-32 character literal
+    // Character types. Avoid multicharacter literals (e.g. '56')
+    char c                  = 'A';                          // 1 byte, range: -128 to 127.
+    unsigned char uc        = 255;                          // 1 byte, range: 0 to 255
+    wchar_t wc              = L'A';                         // 2 or 4 bytes, wide character literal
+    char16_t u16            = u'A';                         // 2 bytes, UTF-16 character literal
+    char32_t u32            = U'A';                         // 4 bytes, UTF-32 character literal
 
     // Short types
-    short s                 = 32767;                    // 2 bytes, range: -32,768 to 32,767
-    unsigned short us       = 65535;                    // 2 bytes, range: 0 to 65,535
+    short s                 = 32767;                        // 2 bytes, range: -32,768 to 32,767
+    unsigned short us       = 65535;                        // 2 bytes, range: 0 to 65,535
 
     // Long types
-    lo l                    = 2147483647L;              // At least 4 bytes
-    unsigned long ul        = 4294967295UL;             // At least 4 bytes
+    lo l                    = 2147483647L;                  // At least 4 bytes
+    unsigned long ul        = 4294967295UL;                 // At least 4 bytes
 
     // Long long types
-    long long ll            = 9223372036854775807LL;    // At least 8 bytes
-    unsigned long long ull  = 18446744073709551615ULL;  // At least 8 bytes
+    long long ll            = 9223372036854775807LL;        // At least 8 bytes
+    unsigned long long ull  = 18446744073709551615ULL;      // At least 8 bytes
 
     // Floating-point types
-    float f                 = 1.7F;                     // 4 bytes. Appending a F denotes a float, else it will be set to a double.
-    double d                = 1.7E+308;                 // 8 bytes. Favour double over float.
-    long double ld          = 1.7E+308L;                // 8, 12, or 16 bytes. Avoid using as it might not use and IEEE-754 compliant format.
+    // Appending a F or f denotes a float, else it will be set to a double.
+    float f                 = 1.7F;                         // 4 bytes.
+    double d                = 1.7E+308;                     // 8 bytes. Favour double over float.
+    long double ld          = 1.7E+308L;                    // Avoid  as it might not be IEEE-754 compliant.
+    double avogadro         = 6.02e23;                      // 6.02 x 10^23
 
     // Boolean type
-    bool b                  = true;                     // 1 byte
+    bool b                  = true;                         // 1 byte
     
     // Null pointer
-    std::nullptr_t p        = nullptr;                  // 4 or 8 bytes
+    std::nullptr_t p        = nullptr;                      // 4 or 8 bytes
     
-    std::size_t int_size    = sizeof(int);              // Prints actual size of integer based on machine architecture.
-    
-    
+    std::size_t int_size    = sizeof(int);                  // Prints actual size of integer based on machine.
 }
 
 void initialization() {
-    int a;                                              // Default-initialization
+    int a;                                                  // Default-initialization
 
     // Traditional initialization forms:
-    int c (6);                                          // Direct-initialization
+    int c (6);                                              // Direct-initialization
     // Copy-initialization is also used whenever values are implicitly copied, such as when:
     // - Passing arguments to a function by value
     // - Returning from a function by value
     // - Catching exceptions by value.
-    int b = 5;                                          // Copy-initialization
+    int b = 5;                                              // Copy-initialization
     
 
     // Modern initialization forms (preferred):
-    int d {7};                                          // Direct-list-initialization
-    int e {};                                           // Value-initialization / zero-initialization to value 0
-    bool bo {};                                         // Defaults to false.
+    int d {7};                                              // Direct-list-initialization
+    int e {};                                               // Value-initialization / zero-initialization to value 0
+    bool bo {};                                             // Defaults to false.
     
     // Benefits of direct-list-intitialization:
-    // int w1 { 4.5 };                                  // Compile error
-    int w2 = 4.5;                                       // Compiles
-    int w3 (4.5);                                       // Compiles
+    // int w1 { 4.5 };                                      // Compile error
+    int w2 = 4.5;                                           // Compiles
+    int w3 (4.5);                                           // Compiles
     
     // Use direct-list-initialization when you’re actually using the initial value:
     int x {0};
@@ -139,52 +145,55 @@ void initialization() {
     int y {};
     std::cin >> y;
     
-    [[maybe_unused]] double pi { 3.14159 };             // Don't complain if pi is unused
+    [[maybe_unused]] double pi { 3.14159 };                 // Don't complain if pi is unused
 }
 
 void benefits_of_brace_initialization() {
     // 1. Prevents Narrowing Conversions
-    // int x {4.5};                                     // Compiler error
-    int y = 4.5;                                        // Compiles, but silently truncates to 4
+    // int x {4.5};                                         // Compiler error
+    int y = 4.5;                                            // Compiles, but silently truncates to 4
 
     // 2. Supports Uniform Initialization
-    int num{5};                                         // Works for built-in types
-    std::vector<int> vec{1, 2, 3};                      // Works for STL containers
-    // MyClass obj{5, 10};                              // Works for custom classes
+    int num{5};                                             // Works for built-in types
+    std::vector<int> vec{1, 2, 3};                          // Works for STL containers
+    // MyClass obj{5, 10};                                  // Works for custom classes
 
     // 3. Avoids Most Vexing Parse
-    std::vector<int> v1(10, 1);                         // Creates a vector with 10 elements, all 1
-    std::vector<int> v2{10, 1};                         // Creates a vector with two elements: {10, 1}
+    std::vector<int> v1(10, 1);                             // Creates a vector with 10 elements, all 1
+    std::vector<int> v2{10, 1};                             // Creates a vector with two elements: {10, 1}
 
     // 4. Prevents Uninitialized Variables
-    int a;                                              // Undefined value (garbage)
-    int b {};                                           // Zero-initialized
+    int a;                                                  // Undefined value (garbage)
+    int b {};                                               // Zero-initialized
     
     // 5. Consistent behavior across types
-    int x{};                                            // Zero-initialized (x = 0)
-    double d{};                                         // Zero-initialized (d = 0.0)
-    std::string s{};                                    // Default constructor is called (s = "")
+    int x{};                                                // Zero-initialized (x = 0)
+    double d{};                                             // Zero-initialized (d = 0.0)
+    std::string s{};                                        // Default constructor is called (s = "")
 }
 
 void infinite_loop() {
-    // for (std::size_t i = n; i >= 0; --i) {           //  Infinite loop! (size_t is always ≥ 0)
+    // for (std::size_t i = n; i >= 0; --i) {                               //  Infinite loop! (size_t is always ≥ 0)
 }
 
+/*
+ * Floating-point numbers use scientific notation internally, allowing them to handle a huge range of values.
+ * A floating point type can only precisely represent a certain number of significant digits.
+ * Using a value with more significant digits than the minimum may result in the value being stored inexactly.
+ */
 void floating_point() {
-    // Unlike integers, which have a fixed range, floating-point numbers use scientific notation internally, allowing them to handle a huge range of values.
-    // A floating point type can only precisely represent a certain number of significant digits.
-    // Using a value with more significant digits than the minimum may result in the value being stored inexactly.
     // std::cout has a default precision of 6.
-    std::cout << 5.0 << '\n';                           // Prints out 5. std::cout will not print out the fractional part if it is 0.
+    // std::cout will not print out the fractional part if it is 0.
+    std::cout << 5.0 << '\n';                                               // Prints out 5.
     
     // Output manipulators (and input manipulators) are sticky -- meaning if you set them, they will remain set.
-    std::cout << std::setprecision(17);                 // Show 17 digits of precision
-    std::cout << 3.3333333333333333333333333f <<'\n';   // 3.3333332538604736 (floats are less precise and have more error)
-    std::cout << 3.3333333333333333333333333 << '\n';   // 3.3333333333333335
+    std::cout << std::setprecision(17);                                     // Show 17 digits of precision
+    std::cout << 3.3333333333333333333333333f <<'\n';                       // 3.3333332538604736 (floats are less precise)
+    std::cout << 3.3333333333333333333333333 << '\n';                       // 3.3333333333333335
     
-    float f { 123456789.0f };                           // f has 10 significant digits
-    std::cout << std::setprecision(9);                  // To show 9 digits in f
-    std::cout << f << '\n';                             // Prints 123456792
+    float f { 123456789.0f };                                               // f has 10 significant digits
+    std::cout << std::setprecision(9);                                      // To show 9 digits in f
+    std::cout << f << '\n';                                                 // Prints 123456792
 
     // Some decimal fractions, like 0.1, cannot be represented exactly in binary, leading to precision errors.
     // Repeated mathematical operations (e.g., addition, multiplication) amplify rounding errors.
@@ -193,23 +202,23 @@ void floating_point() {
     // Avoid direct floating-point comparisons and use tolerance-based checks instead.
     std::cout << std::setprecision(17);
     double d1{ 1.0 };
-    std::cout << d1 << '\n';                            // 0.1
+    std::cout << d1 << '\n';                                                // 0.1
     
     double d2{ 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 };
-    std::cout << d2 << '\n';                            // 0.999999999999
+    std::cout << d2 << '\n';                                                // 0.999999999999
 }
 
 void unsigned_int() {
     int s { -1 };
-    std::cout << static_cast<unsigned int>(s) << '\n';  // prints 4294967295
+    std::cout << static_cast<unsigned int>(s) << '\n';                      // prints 4294967295
 
-    unsigned int u { 4294967295 };                      // Larget 32-bit unsigned int
-    std::cout << static_cast<int>(u) << '\n';           // -1 as of C++20
+    unsigned int u { 4294967295 };                                          // Larget 32-bit unsigned int
+    std::cout << static_cast<int>(u) << '\n';                               // -1 as of C++20
 }
 
 
 void fixed_width_integers() {
-    std::cout << "Enter a number between 0 and 127: ";  // Assume user enters 35.
+    std::cout << "Enter a number between 0 and 127: ";                      // Assume user enters 35
     std::int8_t myInt{};
     std::cin >> myInt;
 
@@ -217,5 +226,18 @@ void fixed_width_integers() {
     // Entering 35 is read as two characters: '3' and '5'.
     // Since char can hold only one character, '3' (ASCII code 51) is stored, leaving '5' in the input stream.
     std::cout << "You entered: "
-        << static_cast<int>(myInt) << '\n';             // Prints 51.
+        << static_cast<int>(myInt) << '\n';                                 // Prints 51.
 }
+
+// Don’t use const for value parameters because they are copied into functions
+// and modifying them doesn’t affect the original.
+void const_value_parameters(const int n) {}
+
+// Don’t use const when returning by value.
+const int const_return_value(int n) {
+    return n;
+}
+
+// Use const with pass-by-reference or pass-by-address to prevent modifying the original data
+// while avoiding unnecessary copies, especially for large objects.
+void const_reference_parameters(const std::string& s) {}

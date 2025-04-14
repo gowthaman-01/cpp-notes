@@ -22,7 +22,7 @@ int bar() {
 }
 
 void operator_precedence() {
-    int x, y, z, a, b, c, d;
+    int x{}, y{}, z{}, a{}, b{}, c{}, d{};
     
     x = 3 + 4 + 5;
     x = ((3 + 4) + 5);
@@ -96,7 +96,7 @@ void exponentiation() {
 void comma_operator() {
     // Separator comma: used to declare multiple variables on the same line
     // Avoid this style for clarity; define one variable per line
-    int a, b, z;
+    int a{}, b{}, z{};
     
     // Evaluate (a, b) first to get result of b, then assign that value to variable z.
     z = (a, b);
@@ -141,9 +141,9 @@ void ternery_operator() {
     
     
     // Type conversions
-    std::cout << (true ? 1 : 2) << '\n';        // Okay: both operands have matching type int.
-    std::cout << (false ? 1 : 2.2) << '\n';     // Okay: int value 1 converted to double.
-    std::cout << (true ? -1 : 2u) << '\n';      // -1 converted to unsigned int, result out of range!
+    std::cout << (z == 0 ? 1 : 2) << '\n';      // Okay: both operands have matching type int.
+    std::cout << (z == 0 ? 1 : 2.2) << '\n';    // Okay: int value 1 converted to double.
+    std::cout << (z == 0 ? -1 : 2u) << '\n';    // -1 converted to unsigned int, result out of range!
     // std::cout << ((x != 5) ? x : "x is 5");  // Compiler error!
 }
 
@@ -152,8 +152,8 @@ void ternery_operator() {
  * Use with care, especially when values are nearly equal.
  */
 void floating_point_comparisions() {
-    constexpr double d1{ 100.0 - 99.99 }; // approx. 0.01
-    constexpr double d2{ 10.0 - 9.99 };   // also approx. 0.01
+    constexpr double d1{ 100.0 - 99.99 };       // approx. 0.01
+    constexpr double d2{ 10.0 - 9.99 };         // also approx. 0.01
 
     // Prints d1 > d2
     if (d1 == d2)

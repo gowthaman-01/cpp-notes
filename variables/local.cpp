@@ -12,13 +12,23 @@
  * Avoid creating new blocks whose only purpose is to limit the scope of variables.
  */
 
+extern int x;
+
 void local_variables() {
     int x { 2 };
+
     {
-        int x { 3 };            // Inner x shadows outer x
-        std::cout << x << '\n'; // Prints 3 — only inner x is accessible here
+        // At this point, 'x' from the outer block is still in scope.
+        std::cout << x << '\n';     // Prints 2 (outer 'x')
+
+        // This 'x' shadows the outer 'x'. This should be avoided.
+        // Within this block, all references to 'x' refer to this inner variable
+        int x { 3 };
+
+        std::cout << x << '\n';     // Prints 3 (inner 'x')
+        std::cout << ::x << '\n';   // Prints 1 (global 'x', defined in constants.cpp)
     }
 
-    std::cout << x << '\n'; // Prints 2 — outer x is visible again
+    // The inner 'x' goes out of scope here. The outer 'x' is now visible again.
+    std::cout << x << '\n';         // Prints 2 (outer 'x')
 }
-

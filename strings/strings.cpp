@@ -1,35 +1,44 @@
 /*
- * C-style string literals include an implicit null terminator ('\0') to mark the end of the string.
- * C-style string literals are const objects that exist for the entire duration of the program.
+ * 1. C-Style String Literals
+ -----------------------------
+ * Include an implicit null terminator ('\0') to mark the end of the string.
+ * Const objects that exist for the entire duration of the program (static duration).
+ * Safe to use with `std::string_view` (no risk of dangling).
  *
- * Unlike C-style string literals, std::string and std::string_view literals create temporary objects.
+ * 2. Temporary objects
+ -----------------------------
+ * Unlike C-style string literals, std::string and std::string_view literals ("text"s and "text"sv) create temporary objects.
  * These temporary objects must be used immediately, as they are destroyed at the end of the full expression in which they are created.
  *
- * An initialized object has no control over what happens to the initialization value after initialization is finished.
+ * 3. Null Termination
+ -----------------------------
+ - `std::string_view` does not guarantee null-termination.
+ - Don't pass it to C-style APIs expecting `const char*`.
+ - Instead, convert explicitly: `std::string(str_view).c_str();` (using str_view.data() is also bad practice)
  *
- * Take care not to write any code that assumes a std::string_view is null terminated.
- * If you have a non-null-terminated std::string_view and you need a null-terminated string for some reason, convert the std::string_view into a std::string.
+ * 4. `std::string`
+ -----------------------------
+ * - Owns and manages its buffer.
+ * - Modifiable, null-terminated, and safe to pass to C APIs.
+ * - Copying/initializing can be expensive.
+ * - Avoid passing by value unless necessary (prefer `const std::string&`).
+ * - Modifying the string can **invalidate views** to it.
+ * - Returning `std::string` by value is okay (RVO + move semantics optimize this).
  *
- * std::string provides a modifiable string. It is expensive to initialize and copy.
- * std::string_view provide a read-only view of a string that exists elsewhere. It is inexpensive to initialize and copy.
+ * 5. `std::string_view`
+ -----------------------------
+ * - Lightweight, read-only view into an existing string (does not own the data).
+ * - Fast to copy and pass by value.
+ * - Typically used as function parameters and viewing static literals
+ * - View becomes invalid if the original string is modified or destroyed.
+ * - View length doesn't update even if the source string changes.
+ * - May point to garbage if it outlives its source.
  *
- * Things to remember about std::string:
- * - Initializing and copying std::string is expensive, so avoid this as much as possible.
- * - Avoid passing std::string by value, as this makes a copy.
- * - If possible, avoid creating short-lived std::string objects.
- * - Modifying a std::string will invalidate any views to that string.
- * - It is okay to return a local std::string by value due to Return Value Optimization (RVO) and move semantics.
+ * 6. Further Reading
+ -------------------
+ * https://www.learncpp.com/cpp-tutorial/stdstring_view-part-2/#stringvsstringview
+ * https://www.learncpp.com/cpp-tutorial/chapter-5-summary-and-quiz
  *
- * Things to remember about std::string_view:
- * - std::string_view is typically used for passing string function parameters and returning string literals.
- * - Because C-style string literals exist for the entire program, it is always okay to set a std::string_view to a C-style string literal.
- * - When a string is destroyed, all views to that string are invalidated.
- * - Using an invalidated view (other than using assignment to revalidate the view) will cause undefined behavior.
- * - A std::string_view may or may not be null-terminated.
- *
- * Refer to code at https://www.learncpp.com/cpp-tutorial/chapter-5-summary-and-quiz for example use of std::string and std::string_view
- *
- * TODO: Reread https://www.learncpp.com/cpp-tutorial/stdstring_view-part-2/#stringvsstringview
  */
 
 #include <iostream>
@@ -41,8 +50,7 @@ void print_string() {
     // When extracting a string with std::cin >>, it stops at the first whitespace, leaving the rest in the input buffer.
     // If you enter "John Doe", std::cin >> name gets "John" and leaves "Doe" in the buffer.
     
-    // Use std::getline() instead
-    // use std::cin >> std::ws input manipulator to ignore leading whitespace.
+    // Instead, use std::getline() with std::cin >> std::ws input manipulator to ignore leading whitespace.
     // This needs to be done for each std::getline() call, as std::ws is not preserved across calls.
     std::getline(std::cin >> std::ws, name);
 }
@@ -51,26 +59,22 @@ void string_view() {
     // When a std::string object is initialized, it makes an independent copy of the initializer's value.
     // This copy ensures that the string is not affected by any changes to the initializer after initialization.
     // The downside is that this independence comes with the cost of making an expensive copy.
-    std::string s{"Sample"};
-    
-    std::string_view sv { "Hello, world!" };        // Initialize with C-style string literal
-    
-    std::string s2{ "Hello, world!" };
-    std::string_view sv2 { s };                      // Initialize with std::string
+    std::string s{"Hello"};
+    std::string_view sv { "World" };                // Initialize with C-style string literal
+    std::string_view sv2 { s };                     // Initialize with std::string
+    std::string_view sv3 { sv };                    // Initialize with std::string_view
 
-    std::string_view sv3 { s2 };                     // Initialize with std::string_view
-    
-    s2 = "Foobar";                                  // s2 is now viewing "Foobar" instead of "Hello, world!"
+    sv = "Foobar";                                  // sv is now viewing "Foobar" instead of "Hello"
 }
 
-// Will accept arguments of type C-style string, a std::string, or std::string_view:
-void printSV(std::string_view str) {
+// Will accept arguments of type C-style string, std::string, or std::string_view:
+void print_string_view(std::string_view str) {
     std::cout << str << '\n';
 }
 
-// Will not accept std::string_view.
-// A possible workaroud is to printString(std::string{sv}) or printString(static_cast<std::string>(sv))
-void printString(std::string str) {
+// Will accept arguments of type C-style string and std::string but not std::string_view.
+// A possible workaroud is to print_string(std::string{sv}) or print_string(static_cast<std::string>(sv))
+void print_string(std::string str) {
     std::cout << str << '\n';
 }
 
@@ -121,29 +125,25 @@ void string_view_improper_use() {
     // That leaves the std::string_view dangling (viewing an invalid object), and printing the view results in undefined behavior.
     std::string_view sv2{getName()};                // Invalid
     std::string_view sv3(getName2());               // Invalid
-    std::string_view sv4(getName3());               // Valid
-    std::string_view sv5(getName4("Gowthaman"));    // Valid
-    std::string_view sv6(getName4("Gowthamans"));   // Invalid
-            
-   
-    std::string_view sv7 {"Gowthaman"s};            // "Gowthaman"s creates a temporary std::string which is destroyed immediately.
+    std::string_view sv4(getName3());               // Valid (C-style string literal)
+    std::string_view sv5(getName4("Gowthaman"));    // Valid (C-style string literal)
+    std::string_view sv6 {"Gowthaman"s};            // "Gowthaman"s creates a temporary std::string which is destroyed immediately.
+    
     // Initialize with a C-style string literal or a std::string_view literal instead.
-    // It’s also okay to initialize a std::string_view with a C-style string object, a std::string object, or a std::string_view object,
-    // as long as that string object outlives the view.
-    std::string_view sv8 {"Gowthaman"};
+    std::string_view sv7 {"Gowthaman"};
     
     std::string s {"Hello, world!"};
-    std::string_view sv9 { s };
+    std::string_view sv8 { s };
     // When a std::string is modified, any std::string_view pointing to it may become invalid, leading to undefined behavior.
     // If the std::string reallocates memory to accommodate new data, the old memory is released,
     // causing the std::string_view to dangle (point to invalid memory).
     // If no reallocation occurs: The std::string_view will point to the new data but won’t recognize length changes.
     // If the new string is longer, the view shows a substring of the new string.
     // If shorter, the view includes extra, potentially garbage characters beyond the new string's end.
-    s = "Hello, a!";                                // sv5 becomes invalidated.
+    s = "Hello, a!";                                // sv8 becomes invalidated.
     
     std::string s2 {"Foobar"};
-    sv5 = s2;                                       // Now sv5 is revalidated.
+    sv5 = s2;                                       // Now sv8 is revalidated.
 }
 
 void view_modification() {

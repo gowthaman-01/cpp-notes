@@ -93,8 +93,7 @@ constexpr int lambdaResult = add(2, 3);                     // Constant expressi
 
 // 13. The return value of a non-constexpr function is a runtime expression
 // even when the return expression is a constant expression
-int five()
-{
+int five() {
     return 5;
 }
 

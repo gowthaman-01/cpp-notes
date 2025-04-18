@@ -157,5 +157,4 @@ void view_modification() {
     
     //  The only way to reset the view is by reassigning the source string to it again.
     str = "Peach";
-
 }

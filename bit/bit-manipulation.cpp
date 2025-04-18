@@ -20,21 +20,21 @@ void bitset() {
     // std::bitset is optimized for speed, not memory.
     // Although it can represent 8 bits, a std::bitset<8> usually takes 4 or 8 bytes due to alignment with size_t.
     // It's best used for convenience, not space efficiency.
-    std::bitset<8> me{ 0b0000'0101 };           // Bit 0 and 2 are set
+    std::bitset<8> me{ 0b0000'0101 };               // Bit 0 and 2 are set
 
-    me.set(isHappy);                            // Bit 3 → set to 1   → 0000'1101
-    me.flip(isLaughing);                        // Bit 4 → flip       → 0001'1101
-    me.reset(isLaughing);                       // Bit 4 → reset to 0 → 0000'1101
+    me.set(isHappy);                                // Bit 3 → set to 1   → 0000'1101
+    me.flip(isLaughing);                            // Bit 4 → flip       → 0001'1101
+    me.reset(isLaughing);                           // Bit 4 → reset to 0 → 0000'1101
 
     std::cout << "My state: " << me << '\n';
     std::cout << "I am happy? " << me.test(isHappy) << '\n';
     std::cout << "I am laughing? " << me.test(isLaughing) << '\n';
     
-    std::cout << me.size() << '\n';             // 8
-    std::cout << me.count() << '\n';            // Set bits -> 3
-    std::cout << me.any() << '\n';              // All set -> true
-    std::cout << me.none() << '\n';             // None set -> false
-    std::cout << me.to_ulong() << '\n';       // Convert to long -> 13
+    std::cout << me.size() << '\n';                 // 8
+    std::cout << me.count() << '\n';                // Set bits -> 3
+    std::cout << me.any() << '\n';                  // All set -> true
+    std::cout << me.none() << '\n';                 // None set -> false
+    std::cout << me.to_ulong() << '\n';             // Convert to long -> 13
 }
 
 /*
@@ -48,8 +48,8 @@ void bitset() {
 void bit_manipulation() {
     int x = 1;
     
-    std::cout << x << 1 << '\n';                // print value of x (0110), then 1
-    std::cout << (x << 1) << '\n';              // print x left shifted by 1 (1100)
+    std::cout << x << 1 << '\n';                    // print value of x (0110), then 1
+    std::cout << (x << 1) << '\n';                  // print x left shifted by 1 (1100)
 }
 
 
@@ -88,28 +88,28 @@ void configure_options(std::bitset<32> options) {}
  *  - You want to compactly pass multiple boolean options to functions.
  */
 void bit_mask() {
-    constexpr std::uint8_t option0{ 0b0000'0001 }; // represents bit 0
-    constexpr std::uint8_t option1{ 0b0000'0010 }; // represents bit 1
-    constexpr std::uint8_t option2{ 0b0000'0100 }; // represents bit 2
-    constexpr std::uint8_t option3{ 0b0000'1000 }; // represents bit 3
-    constexpr std::uint8_t option4{ 0b0001'0000 }; // represents bit 4
-    constexpr std::uint8_t option5{ 0b0010'0000 }; // represents bit 5
-    constexpr std::uint8_t option6{ 0b0100'0000 }; // represents bit 6
-    constexpr std::uint8_t option7{ 0b1000'0000 }; // represents bit 7
+    constexpr std::uint8_t option0{ 0b0000'0001 };  // represents bit 0
+    constexpr std::uint8_t option1{ 0b0000'0010 };  // represents bit 1
+    constexpr std::uint8_t option2{ 0b0000'0100 };  // represents bit 2
+    constexpr std::uint8_t option3{ 0b0000'1000 };  // represents bit 3
+    constexpr std::uint8_t option4{ 0b0001'0000 };  // represents bit 4
+    constexpr std::uint8_t option5{ 0b0010'0000 };  // represents bit 5
+    constexpr std::uint8_t option6{ 0b0100'0000 };  // represents bit 6
+    constexpr std::uint8_t option7{ 0b1000'0000 };  // represents bit 7
     
     std::uint8_t flags{ 0b1010'1110 };
     
     // Using bit flags:
-    if (flags & option4) {}                     // If option4 is set, do something
+    if (flags & option4) {}                         // If option4 is set, do something
     
-    flags |= option4;                           // Turn option 4 on.
-    flags |= (option4 | option5);               // Turn options 4 and 5 on.
+    flags |= option4;                               // Turn option 4 on.
+    flags |= (option4 | option5);                   // Turn options 4 and 5 on.
 
-    flags &= ~option4;                          // Turn option 4 off
-    flags &= ~(option4 | option5);              // Turn options 4 and 5 off
+    flags &= ~option4;                              // Turn option 4 off
+    flags &= ~(option4 | option5);                  // Turn options 4 and 5 off
 
-    flags ^= option4;                           // Flip option4
-    flags ^= (option4 | option5);               // Flip options 4 and 5
+    flags ^= option4;                               // Flip option4
+    flags ^= (option4 | option5);                   // Flip options 4 and 5
     
     // Instead of this
     configure_options_with_booleans(false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true);

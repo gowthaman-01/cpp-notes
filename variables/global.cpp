@@ -20,7 +20,7 @@
  *
  * Globals can be justified in rare cases where:
  * - Only one instance will ever exist (e.g., log file, random number generator).
- * The object is used everywhere in the program (e.g., std::cout, std::cin).
+ * - The object is used everywhere in the program (e.g., std::cout, std::cin).
  */
 
 // Forward declarations
@@ -63,21 +63,8 @@ extern const int g_y3;          // Forward declaration (no initializer)
 constexpr int g_z { 3 };        // Defines initialized global constexpr
 
 namespace Foo {
+    // g_z can be accessed through Foo::g_z
     int g_z {};                 // g_z is now inside the Foo namespace, but is still a global variable
-}
-
-// g_z can be accessed through Foo::g_z
-
-void counter() {
-    // This variable has function scope but static storage duration (exists for the lifetime of the program).
-    static int count = 0;
-    count++;
-}
-
-void incrementCount() {
-    counter();      // count = 1
-    counter();      // count = 2
-    counter();      // count = 3
 }
 
 /*

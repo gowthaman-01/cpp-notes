@@ -1,30 +1,45 @@
 #include <iostream>
 
 /*
- * Small personal applications usually don't need namespaces.
- * For larger personal projects with third-party libraries, use your own namespace to avoid naming collisions.
+ * 1. Namespaces
+ * - Small personal applications usually don't need namespaces.
+ * - For larger personal projects with third-party libraries, use your own namespace to avoid naming collisions.
  *
- * Any code intended for reuse or distribution should always be placed in a namespace.
- * A single top-level namespace (e.g., Foologger) is often enough.
- * This also enables autocomplete and suggestions in IDEs (e.g., Foologger::).
+ * - Any code intended for reuse or distribution should always be placed in a namespace.
+ * - A single top-level namespace (e.g., Foologger) is often enough.
+ * - This also enables autocomplete and suggestions in IDEs (e.g., Foologger::).
  *
- * In multi-team or enterprise environments, use multi-level namespaces:
- *   Project::Module               (e.g., Foologger::Lang)
- *   Company::Library              (e.g., Foosoft::Foologger)
- *   Company::Library::Module      (e.g., Foosoft::Foologger::Lang)
+ * - In multi-team or enterprise environments, use multi-level namespaces:
+ *      Project::Module               (e.g., Foologger::Lang)
+ *      Company::Library              (e.g., Foosoft::Foologger)
+ *      Company::Library::Module      (e.g., Foosoft::Foologger::Lang)
  *
- * Use module-level namespaces to separate reusable code (e.g., Math::, Lang::)
- *   from application-specific code.
- * You can also separate reusable and app-specific code using directory structure.
+ * - Use module-level namespaces to separate reusable code (e.g., Math::, Lang::) from application-specific code.
+ * - You can also separate reusable and app-specific code using directory structure.
  *
- * Avoid deeply nested namespaces (more than 3 levels), as they reduce readability.
+ * - Avoid deeply nested namespaces (more than 3 levels), as they reduce readability.
+ *
+ * 2. inline and unnamed namespaces
+ * - Prefer unnamed namespaces when you have content you want to keep local to a translation unit.
+ * - Avoid unnamed namespaces in header files.
+ *
+ * - Use inline namespaces to manage versioning of APIs while maintaining backward compatibility.
+ * - Only one inline namespace should be active (unqualified) at a time; others must be explicitly referenced.
+ * - Avoid mixing inline and unnamed namespaces at the same level — it can lead to ambiguous symbol resolution.
+ *
+ * 3. using-statements
+ * - Prefer explicit namespace qualifiers over using-statements.
+ * - Avoid using-directives altogether (except `using namespace std::literals` to access the s and sv literal suffixes).
+ * - Using-declarations (e.g, using std::cout` are okay in .cpp files, after the #include directives.
+ * - Do not use using-statements in header files (especially in the global namespace of header files).
  */
 
-int doSomething(int x, int y) {
-    return x + y;
+namespace {
+    int doSomething(int x, int y) {
+        return x + y;
+    }
 }
 
-// Define a namespace named Foo.
 namespace Foo {
     // This doSomething() belongs to namespace Foo.
     int doSomething(int x, int y) {
@@ -32,7 +47,6 @@ namespace Foo {
     }
 }
 
-// Define a namespace named Goo.
 namespace Goo {
     // This doSomething() belongs to namespace Goo.
     int doSomething(int x, int y) {

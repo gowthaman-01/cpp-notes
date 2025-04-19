@@ -4,7 +4,7 @@
  * Scope determines where declaration of a single identifier can be seen and used in the code.
  * Linkage determines whether multiple declarations of the same identifier refer to the same object or not.
  *
- * Local variables have
+ * Local variables have:
  * - Block scope (are only visible within the block they are declared in).
  * - Automatic duration (they are created at the point of definition and destroyed when the block is exited).
  
